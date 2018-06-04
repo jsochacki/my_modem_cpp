@@ -22,6 +22,9 @@ template <typename Type>
 std::complex<Type> complex_gaussian_point_noise(void);
 
 template <typename Type>
+inline std::complex<Type> inline_complex_gaussian_point_noise(void);
+
+template <typename Type>
 Type standard_deviation(unsigned int, Type *);
 
 template <typename Type>
@@ -84,6 +87,23 @@ int main(int argc, char **argv)
 //supports float, double, or long double
 template <typename Type>
 std::complex<Type> complex_gaussian_point_noise(void)
+{
+   std::complex<Type> urv; Type r, n;
+
+   do
+   {
+      urv = std::complex<Type>( (mt_uniform(rng) * 2) - 1, (mt_uniform(rng) * 2) - 1);
+      r = std::pow(std::abs(urv), 2);
+   }
+   while ( ( r >= 1) || (r == 0 ) );
+
+   n = std::sqrt(-2 * std::log(r) / r);
+   return std::complex<Type>(urv * n);
+}
+
+//supports float, double, or long double
+template <typename Type>
+inline std::complex<Type> inline_complex_gaussian_point_noise(void)
 {
    std::complex<Type> urv; Type r, n;
 
@@ -207,7 +227,7 @@ void AWGN_Generator(unsigned int signal_length, std::complex<Type> *symbol_strea
 
    for(n = 0; n < signal_length; n++)
    {
-      noise[n] = complex_gaussian_point_noise<Type>();
+      noise[n] = inline_complex_gaussian_point_noise<Type>();
    }
 
    stdev_value = standard_deviation( signal_length, noise);
